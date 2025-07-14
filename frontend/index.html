@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Neon Login Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    #message {
+      margin: 1rem 0;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <h2>Or Sign Up</h2>
+  <form id="signupForm">
+    <input type="text" id="nickname" placeholder="Nickname" required />
+    <input type="email" id="signupEmail" placeholder="Email" required />
+    <input type="password" id="signupPassword" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <div id="message"></div>
+
+  <script>
+    const backendUrl = 'http://localhost:3000/api';
+
+    const messageEl = document.getElementById('message');
+
+    // Login form submit
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      messageEl.textContent = '';
+
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+
+      try {
+        const res = await fetch(`${backendUrl}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          messageEl.style.color = 'green';
+          messageEl.textContent = `Welcome back, ${user.nickname}!`;
+        } else {
+          const err = await res.json();
+          messageEl.style.color = 'red';
+          messageEl.textContent = err.error || 'Login failed';
+        }
+      } catch (error) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = 'Network error';
+      }
+    });
+
+    // Signup form submit
+    document.getElementById('signupForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      messageEl.textContent = '';
+
+      const nickname = e.target.nickname.value;
+      const email = e.target.signupEmail.value;
+      const password = e.target.signupPassword.value;
+
+      try {
+        const res = await fetch(`${backendUrl}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname, email, password }),
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          messageEl.style.color = 'green';
+          messageEl.textContent = `User ${user.nickname} created! You can now login.`;
+          e.target.reset();
+        } else {
+          const err = await res.json();
+          messageEl.style.color = 'red';
+          messageEl.textContent = err.error || 'Signup failed';
+        }
+      } catch (error) {
+        messageEl.style.color = 'red';
+        messageEl.textContent = 'Network error';
+      }
+    });
+  </script>
+</body>
+</html>
