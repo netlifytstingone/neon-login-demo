@@ -13,9 +13,20 @@
   </form>
   <div id="message"></div>
 
+  <h2>Sign Up</h2>
+  <form id="signupForm">
+    <label>Nickname: <input type="text" id="nickname" /></label><br />
+    <label>Email: <input type="email" id="signupEmail" required /></label><br />
+    <label>Password: <input type="password" id="signupPassword" required /></label><br />
+    <button type="submit">Sign Up</button>
+  </form>
+  <div id="signupMessage"></div>
+
   <script>
-    const form = document.getElementById('loginForm');
-    form.addEventListener('submit', async (e) => {
+    const loginForm = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
@@ -25,11 +36,31 @@
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      const msg = document.getElementById('message');
       if (res.ok) {
-        msg.textContent = `Welcome, ${data.nickname || data.email}!`;
+        message.textContent = `Welcome, ${data.nickname || data.email}!`;
       } else {
-        msg.textContent = data.error || 'Login failed';
+        message.textContent = data.error || 'Login failed';
+      }
+    });
+
+    const signupForm = document.getElementById('signupForm');
+    const signupMessage = document.getElementById('signupMessage');
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nickname = document.getElementById('nickname').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const res = await fetch('/signup', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ nickname, email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        signupMessage.textContent = `User ${data.nickname || data.email} created! You can now log in.`;
+      } else {
+        signupMessage.textContent = data.error || 'Signup failed';
       }
     });
   </script>
